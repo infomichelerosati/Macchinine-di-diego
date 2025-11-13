@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Garage Speciale di Diego</title>
+    <!-- Script di Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Importa il font Merriweather da Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Applicare il font Merriweather al corpo */
+        body {
+            font-family: 'Merriweather', serif;
+        }
+
+        /* Stile per lo sfondo con effetto "carta" */
+        .book-background {
+            background-color: #fdfbf6; /* Un colore crema chiaro */
+            background-image: linear-gradient(rgba(188, 175, 162, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(188, 175, 162, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        /* Stili per le pagine e la transizione */
+        .page {
+            /* Nasconde tutte le pagine per default */
+            display: none;
+            /* Flex-col è il default per il layout mobile verticale */
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            
+            /* Transizione per l'effetto slide */
+            transition: transform 0.4s ease-in-out;
+            
+            /* Impostazioni per il cursore grab */
+            cursor: grab;
+        }
+        
+        /* La pagina attiva è visibile e al centro */
+        .page.active {
+            display: flex;
+            transform: translateX(0);
+            z-index: 10;
+        }
+
+        /* Stile per la pagina che sta uscendo (slide a sinistra) */
+        .page.exit-left {
+            display: flex;
+            transform: translateX(-100%);
+            z-index: 5;
+        }
+
+        /* Stile per la pagina che sta entrando (da destra) */
+        .page.enter-right {
+            display: flex;
+            transform: translateX(100%);
+            z-index: 10;
+        }
+        
+        /* Stile per la pagina che sta uscendo (slide a destra) */
+        .page.exit-right {
+            display: flex;
+            transform: translateX(100%);
+            z-index: 5;
+        }
+
+        /* Stile per la pagina che sta entrando (da sinistra) */
+        .page.enter-left {
+            display: flex;
+            transform: translateX(-100%);
+            z-index: 10;
+        }
+
+        /* Quando si sta afferrando */
+        .page:active {
+            cursor: grabbing;
+        }
+
+        /* Stili per le icone audio */
+        .audio-icon {
+            cursor: pointer;
+            z-index: 20;
+            position: absolute;
+            bottom: 1rem;
+            left: 1.5rem;
+        }
+        
+        /* Nasconde le icone 'stop' e 'play' di default */
+        .audio-icon .stop-icon,
+        .audio-icon.playing .play-icon {
+            display: none;
+        }
+        
+        /* Mostra l'icona 'stop' quando è in riproduzione */
+        .audio-icon.playing .stop-icon {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-800 flex items-center justify-center min-h-screen p-4">
+
+    <!-- Contenitore del libro -->
+    <main class="w-full max-w-4xl h-[85vh] md:h-[75vh] relative shadow-2xl rounded-lg overflow-hidden book-background">
+        
+        <!-- Pagine -->
+        
+        <!-- Pagina 1: Copertina (Layout sempre verticale) -->
+        <div id="page-1" class="page active flex-col h-full p-6 md:p-8">
+            <img src="immagini/pagina1.png" alt="Illustrazione: Copertina - Diego con le sue macchinine" class="w-full rounded-lg object-contain mb-6" style="height: 45vh;">
+            <div class="text-content text-center flex-grow">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Il Garage Speciale di Diego</h1>
+                <p class="text-xl text-gray-600">Di Michele Rosati</p>
+            </div>
+            <!-- Numero di Pagina -->
+            <div class="page-number absolute bottom-4 right-6 text-sm text-gray-400">1</div>
+            <!-- Icona Audio -->
+            <div id="audio-btn-1" class="audio-icon" data-page="1">
+                <!-- Icona Play (Altoparlante) -->
+                <svg class="play-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l5.707-5.707A1 1 0 0113 4v16a1 1 0 01-1.707.707L5.586 15z"></path></svg>
+                <!-- Icona Stop -->
+                <svg class="stop-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h6a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5H9z"></path></svg>
+            </div>
+        </div>
+
+        <!-- Pagina 2: Testo 1 -->
+        <div id="page-2" class="page flex-col md:flex-row landscape:flex-row h-full p-6 md:p-8 md:items-center landscape:items-center">
+            <!-- Immagine: 'landscape' e 'md' applicano lo stile orizzontale -->
+            <img src="immagini/pagina2.png" alt="Illustrazione: Diego gioca sul tappeto" class="w-full md:w-1/2 landscape:w-1/2 rounded-lg object-contain mb-6 md:mb-0 landscape:mb-0 md:h-[60vh] landscape:h-[60vh]" style="height: 45vh; md:height: auto;">
+            <!-- Testo: 'landscape' e 'md' applicano lo stile orizzontale -->
+            <div class="text-content flex-grow w-full md:w-1/2 landscape:w-1/2 md:pl-6 landscape:pl-6">
+                <p class="text-lg text-gray-700 leading-loose">
+                    C'era una volta un bambino di nome Diego che amava tantissimo le sue macchinine. Aveva una macchinina rossa super veloce, un grande autobus giallo che trasportava tutti i suoi amici immaginari e un camion blu fortissimo che poteva spostare montagne di cuscini.
+                </p>
+            </div>
+            <!-- Numero di Pagina -->
+            <div class="page-number absolute bottom-4 right-6 text-sm text-gray-400">2</div>
+            <!-- Icona Audio -->
+            <div id="audio-btn-2" class="audio-icon" data-page="2">
+                <svg class="play-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l5.707-5.707A1 1 0 0113 4v16a1 1 0 01-1.707.707L5.586 15z"></path></svg>
+                <svg class="stop-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h6a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5H9z"></path></svg>
+            </div>
+        </div>
+
+        <!-- Pagina 3: Testo 2 -->
+        <div id="page-3" class="page flex-col md:flex-row landscape:flex-row h-full p-6 md:p-8 md:items-center landscape:items-center">
+            <img src="immagini/pagina3.png" alt="Illustrazione: Macchinine che sfrecciano per casa" class="w-full md:w-1/2 landscape:w-1/2 rounded-lg object-contain mb-6 md:mb-0 landscape:mb-0 md:h-[60vh] landscape:h-[60vh]" style="height: 45vh; md:height: auto;">
+            <div class="text-content flex-grow w-full md:w-1/2 landscape:w-1/2 md:pl-6 landscape:pl-6">
+                <p class="text-lg text-gray-700 leading-loose">
+                    "Vrooom, vrooom!" faceva Diego, facendo correre i suoi veicoli per tutta la casa. La macchinina rossa sfrecciava sotto il tavolo, l'autobus giallo faceva il giro del divano e il camion blu si arrampicava sulla poltrona. Che avventure meravigliose!
+                </p>
+            </div>
+            <!-- Numero di Pagina -->
+            <div class="page-number absolute bottom-4 right-6 text-sm text-gray-400">3</div>
+            <!-- Icona Audio -->
+            <div id="audio-btn-3" class="audio-icon" data-page="3">
+                <svg class="play-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l5.707-5.707A1 1 0 0113 4v16a1 1 0 01-1.707.707L5.586 15z"></path></svg>
+                <svg class="stop-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h6a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5H9z"></path></svg>
+            </div>
+        </div>
+
+        <!-- Pagina 4: Testo 3 -->
+        <div id="page-4" class="page flex-col md:flex-row landscape:flex-row h-full p-6 md:p-8 md:items-center landscape:items-center">
+            <img src="immagini/pagina4.png" alt="Illustrazione: Giocattoli lasciati in giro" class="w-full md:w-1/2 landscape:w-1/2 rounded-lg object-contain mb-6 md:mb-0 landscape:mb-0 md:h-[60vh] landscape:h-[60vh]" style="height: 45vh; md:height: auto;">
+            <div class="text-content flex-grow w-full md:w-1/2 landscape:w-1/2 md:pl-6 landscape:pl-6">
+                <p class="text-lg text-gray-700 leading-loose">
+                    Ma quando era ora di fare merenda o di andare a nanna, Diego correva via, lasciando i suoi amici a quattro ruote dove si trovavano. La macchinina rossa restava sola sotto il tavolo, l'autobus giallo si sentiva abbandonato vicino al divano e il camion blu era rimasto bloccato vicino alla porta.
+                </p>
+            </div>
+            <!-- Numero di Pagina -->
+            <div class="page-number absolute bottom-4 right-6 text-sm text-gray-400">4</div>
+            <!-- Icona Audio -->
+            <div id="audio-btn-4" class="audio-icon" data-page="4">
+                <svg class="play-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l5.707-5.707A1 1 0 0113 4v16a1 1 0 01-1.707.707L5.586 15z"></path></svg>
+                <svg class="stop-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h6a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5H9z"></path></svg>
+            </div>
+        </div>
+
+        <!-- Pagina 5: Testo 4 -->
+        <div id="page-5" class="page flex-col md:flex-row landscape:flex-row h-full p-6 md:p-8 md:items-center landscape:items-center">
+            <img src="immagini/pagina5.png" alt="Illustrazione: Mamma che inciampa sul camioncino" class="w-full md:w-1/2 landscape:w-1/2 rounded-lg object-contain mb-6 md:mb-0 landscape:mb-0 md:h-[60vh] landscape:h-[60vh]" style="height: 45vh; md:height: auto;">
+            <div class="text-content flex-grow w-full md:w-1/2 landscape:w-1/2 md:pl-6 landscape:pl-6">
+                <p class="text-lg text-gray-700 leading-loose">
+                    Una sera, mentre la mamma di Diego camminava per il salotto, non vide il camioncino blu. "Oplà!" inciampò quasi, facendo un piccolo salto per non schiacciarlo. "Oh, piccolo camion!" disse la mamma. "Sei tutto solo qui per terra."
+                </p>
+            </div>
+            <!-- Numero di Pagina -->
+            <div class="page-number absolute bottom-4 right-6 text-sm text-gray-400">5</div>
+            <!-- Icona Audio -->
+            <div id="audio-btn-5" class="audio-icon" data-page="5">
+                <svg class="play-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l5.707-5.707A1 1 0 0113 4v16a1 1 0 01-1.707.707L5.586 15z"></path></svg>
+                <svg class="stop-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h6a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5H9z"></path></svg>
+            </div>
+        </div>
+
+        <!-- Pagina 6: Testo 5 -->
+        <div id="page-6" class="page flex-col md:flex-row landscape:flex-row h-full p-6 md:p-8 md:items-center landscape:items-center">
+            <img src="immagini/pagina6.png" alt="Illustrazione: Diego triste che abbraccia il camioncino" class="w-full md:w-1/2 landscape:w-1/2 rounded-lg object-contain mb-6 md:mb-0 landscape:mb-0 md:h-[60vh] landscape:h-[60vh]" style="height: 45vh; md:height: auto;">
+            <div class="text-content flex-grow w-full md:w-1/2 landscape:w-1/2 md:pl-6 landscape:pl-6">
+                <p class="text-lg text-gray-700 leading-loose">
+                    Diego vide la scena e corse a prendere il suo camioncino. Lo strinse forte. Non voleva che i suoi amici venissero schiacciati o si sentissero soli. "Hanno freddo," sussurrò Diego alla sua mamma. "Hanno bisogno di una casa."
+                </p>
+            </div>
+            <!-- Numero di Pagina -->
+            <div class="page-number absolute bottom-4 right-6 text-sm text-gray-400">6</div>
+            <!-- Icona Audio -->
+            <div id="audio-btn-6" class="audio-icon" data-page="6">
+                <svg class="play-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l5.707-5.707A1 1 0 0113 4v16a1 1 0 01-1.707.707L5.586 15z"></path></svg>
+                <svg class="stop-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h6a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5H9z"></path></svg>
+            </div>
+        </div>
+
+        <!-- Pagina 7: Testo 6 -->
+        <div id="page-7" class="page flex-col md:flex-row landscape:flex-row h-full p-6 md:p-8 md:items-center landscape:items-center">
+            <img src="immagini/pagina7.png" alt="Illustrazione: Mamma che sorride a Diego" class="w-full md:w-1/2 landscape:w-1/2 rounded-lg object-contain mb-6 md:mb-0 landscape:mb-0 md:h-[60vh] landscape:h-[60vh]" style="height: 45vh; md:height: auto;">
+            <div class="text-content flex-grow w-full md:w-1/2 landscape:w-1/2 md:pl-6 landscape:pl-6">
+                <p class="text-lg text-gray-700 leading-loose">
+                    La mamma sorrise e diede un bacio a Diego. "Hai ragione, amore. È una splendida idea! Perché non costruiamo un garage speciale per loro, dove possano dormire tutti insieme al caldo e al sicuro?"
+                </p>
+            </div>
+            <!-- Numero di Pagina -->
+            <div class="page-number absolute bottom-4 right-6 text-sm text-gray-400">7</div>
+            <!-- Icona Audio -->
+            <div id="audio-btn-7" class="audio-icon" data-page="7">
+                <svg class="play-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l5.707-5.707A1 1 0 0113 4v16a1 1 0 01-1.707.707L5.586 15z"></path></svg>
+                <svg class="stop-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h6a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5H9z"></path></svg>
+            </div>
+        </div>
+
+        <!-- Pagina 8: Testo 7 -->
+        <div id="page-8" class="page flex-col md:flex-row landscape:flex-row h-full p-6 md:p-8 md:items-center landscape:items-center">
+            <img src="immagini/pagina8.png" alt="Illustrazione: Diego e la mamma che decorano una scatola" class="w-full md:w-1/2 landscape:w-1/2 rounded-lg object-contain mb-6 md:mb-0 landscape:mb-0 md:h-[60vh] landscape:h-[60vh]" style="height: 45vh; md:height: auto;">
+            <div class="text-content flex-grow w-full md:w-1/2 landscape:w-1/2 md:pl-6 landscape:pl-6">
+                <p class="text-lg text-gray-700 leading-loose">
+                    Così, presero una grande scatola di cartone. La mamma aiutò Diego a disegnare una grande porta e delle finestre con un pennarello. Diego disegnò delle strisce colorate per terra, una per ogni suo veicolo. Era il garage più bello del mondo!
+                </p>
+            </div>
+            <!-- Numero di Pagina -->
+            <div class="page-number absolute bottom-4 right-6 text-sm text-gray-400">8</div>
+            <!-- Icona Audio -->
+            <div id="audio-btn-8" class="audio-icon" data-page="8">
+                <svg class="play-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l5.707-5.707A1 1 0 0113 4v16a1 1 0 01-1.707.707L5.586 15z"></path></svg>
+                <svg class="stop-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h6a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5H9z"></path></svg>
+            </div>
+        </div>
+
+        <!-- Pagina 9: Testo 8 -->
+        <div id="page-9" class="page flex-col md:flex-row landscape:flex-row h-full p-6 md:p-8 md:items-center landscape:items-center">
+            <img src="immagini/pagina9.png" alt="Illustrazione: Diego mette il camion blu nella scatola" class="w-full md:w-1/2 landscape:w-1/2 rounded-lg object-contain mb-6 md:mb-0 landscape:mb-0 md:h-[60vh] landscape:h-[60vh]" style="height: 45vh; md:height: auto;">
+            <div class="text-content flex-grow w-full md:w-1/2 landscape:w-1/2 md:pl-6 landscape:pl-6">
+                <p class="text-lg text-gray-700 leading-loose">
+                    "È ora di andare a dormire!" annunciò Diego. Prese per primo il suo camion blu. "Brumm, brumm... parcheggiato!" disse, mettendolo con cura al suo posto nel garage. "Buonanotte, camioncino."
+                </p>
+            </div>
+            <!-- Numero di Pagina -->
+            <div class="page-number absolute bottom-4 right-6 text-sm text-gray-400">9</div>
+            <!-- Icona Audio -->
+            <div id="audio-btn-9" class="audio-icon" data-page="9">
+                <svg class="play-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l5.707-5.707A1 1 0 0113 4v16a1 1 0 01-1.707.707L5.586 15z"></path></svg>
+                <svg class="stop-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h6a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5H9z"></path></svg>
+            </div>
+        </div>
+
+        <!-- Pagina 10: Testo 9 -->
+        <div id="page-10" class="page flex-col md:flex-row landscape:flex-row h-full p-6 md:p-8 md:items-center landscape:items-center">
+            <img src="immagini/pagina10.png" alt="Illustrazione: Diego mette l'autobus e la macchina rossa" class="w-full md:w-1/2 landscape:w-1/2 rounded-lg object-contain mb-6 md:mb-0 landscape:mb-0 md:h-[60vh] landscape:h-[60vh]" style="height: 45vh; md:height: auto;">
+            <div class="text-content flex-grow w-full md:w-1/2 landscape:w-1/2 md:pl-6 landscape:pl-6">
+                <p class="text-lg text-gray-700 leading-loose">
+                    Poi fu il turno dell'autobus giallo. "Tutti i passeggeri scendono!" canticchiò Diego, facendolo entrare nel garage accanto al camion. E infine, andò a recuperare la macchinina rossa da sotto il tavolo. "A nanna, piccola saetta!" e la parcheggiò al sicuro.
+                </p>
+            </div>
+            <!-- Numero di Pagina -->
+            <div class="page-number absolute bottom-4 right-6 text-sm text-gray-400">10</div>
+            <!-- Icona Audio -->
+            <div id="audio-btn-10" class="audio-icon" data-page="10">
+                <svg class="play-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l5.707-5.707A1 1 0 0113 4v16a1 1 0 01-1.707.707L5.586 15z"></path></svg>
+                <svg class="stop-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h6a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5H9z"></path></svg>
+            </div>
+        </div>
+        
+        <!-- Pagina 11: Testo 10 (Fine) -->
+        <div id="page-11" class="page flex-col md:flex-row landscape:flex-row h-full p-6 md:p-8 md:items-center landscape:items-center">
+            <img src="immagini/pagina11.png" alt="Illustrazione: Diego orgoglioso guarda le macchinine nel garage" class="w-full md:w-1/2 landscape:w-1/2 rounded-lg object-contain mb-6 md:mb-0 landscape:mb-0 md:h-[60vh] landscape:h-[60vh]" style="height: 45vh; md:height: auto;">
+            <div class="text-content flex-grow w-full md:w-1/2 landscape:w-1/2 md:pl-6 landscape:pl-6">
+                <p class="text-lg text-gray-700 leading-loose">
+                    Ora, tutti gli amici di Diego erano al sicuro nel loro garage speciale. Il pavimento era libero e la casa era in ordine. Da quel giorno, mettere a posto i giocattoli divenne il gioco preferito di Diego prima della nanna: il gioco della buonanotte nel garage speciale.
+                </p>
+            </div>
+            <!-- Numero di Pagina -->
+            <div class="page-number absolute bottom-4 right-6 text-sm text-gray-400">11</div>
+            <!-- Icona Audio -->
+            <div id="audio-btn-11" class="audio-icon" data-page="11">
+                <svg class="play-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l5.707-5.707A1 1 0 0113 4v16a1 1 0 01-1.707.707L5.586 15z"></path></svg>
+                <svg class="stop-icon w-6 h-6 text-gray-500 hover:text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h6a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5H9z"></path></svg>
+            </div>
+        </div>
+
+    </main>
+    
+    <!-- Elementi Audio Nascosti -->
+    <!-- Assicurati di avere i file audio in una cartella 'audio/' -->
+    <audio id="audio-1" src="audio/pagina1.mp3" preload="auto"></audio>
+    <audio id="audio-2" src="audio/pagina2.mp3" preload="none"></audio>
+    <audio id="audio-3" src="audio/pagina3.mp3" preload="none"></audio>
+    <audio id="audio-4" src="audio/pagina4.mp3" preload="none"></audio>
+    <audio id="audio-5" src="audio/pagina5.mp3" preload="none"></audio>
+    <audio id="audio-6" src="audio/pagina6.mp3" preload="none"></audio>
+    <audio id="audio-7" src="audio/pagina7.mp3" preload="none"></audio>
+    <audio id="audio-8" src="audio/pagina8.mp3" preload="none"></audio>
+    <audio id="audio-9" src="audio/pagina9.mp3" preload="none"></audio>
+    <audio id="audio-10" src="audio/pagina10.mp3" preload="none"></audio>
+    <audio id="audio-11" src="audio/pagina11.mp3" preload="none"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const book = document.querySelector('main');
+            const totalPages = 11;
+            let currentPage = 1;
+            let startX = 0;
+            let endX = 0;
+            let isDragging = false;
+            const swipeThreshold = 50; // Minima distanza (px) per uno swipe
+
+            let audioPlayers = [];
+            let audioButtons = [];
+            
+            // Inizializza audio e pulsanti
+            for (let i = 1; i <= totalPages; i++) {
+                audioPlayers[i] = document.getElementById(`audio-${i}`);
+                audioButtons[i] = document.getElementById(`audio-btn-${i}`);
+
+                // Aggiungi listener per i pulsanti audio
+                if (audioButtons[i]) {
+                    audioButtons[i].addEventListener('click', (e) => {
+                        e.stopPropagation(); // Impedisce allo swipe di attivarsi
+                        toggleAudio(i);
+                    });
+                }
+                
+                // Aggiungi listener per la fine dell'audio
+                if (audioPlayers[i]) {
+                    audioPlayers[i].addEventListener('ended', () => {
+                        if (audioButtons[i]) {
+                            audioButtons[i].classList.remove('playing');
+                        }
+                    });
+                }
+            }
+
+            function toggleAudio(pageNumber) {
+                const player = audioPlayers[pageNumber];
+                const button = audioButtons[pageNumber];
+                
+                if (!player) return;
+
+                if (player.paused) {
+                    // Ferma tutti gli altri audio prima di partire
+                    stopAllAudio();
+                    
+                    // Pre-carica l'audio se non è già stato fatto
+                    if (player.preload === 'none') {
+                        player.preload = 'auto';
+                    }
+                    
+                    player.play().catch(error => {
+                        // Gestisce l'errore di autoplay bloccato dai browser
+                        console.warn("Autoplay audio bloccato. L'utente deve prima interagire con la pagina (clic).");
+                    });
+                    
+                    if (button) button.classList.add('playing');
+                } else {
+                    player.pause();
+                    player.currentTime = 0; // Riavvolgi
+                    if (button) button.classList.remove('playing');
+                }
+            }
+
+            function stopAllAudio() {
+                for (let i = 1; i <= totalPages; i++) {
+                    if (audioPlayers[i] && !audioPlayers[i].paused) {
+                        audioPlayers[i].pause();
+                        audioPlayers[i].currentTime = 0;
+                        if(audioButtons[i]) {
+                            audioButtons[i].classList.remove('playing');
+                        }
+                    }
+                }
+            }
+
+            // Funzione per mostrare la pagina
+            function showPage(pageNumber, direction) {
+                const oldPageNum = currentPage;
+                if (pageNumber < 1 || pageNumber > totalPages || oldPageNum === pageNumber) {
+                    return; // Non cambia pagina se è la stessa o fuori range
+                }
+                
+                // Ferma l'audio quando si gira pagina
+                stopAllAudio();
+
+                const oldPage = document.getElementById(`page-${oldPageNum}`);
+                const newPage = document.getElementById(`page-${pageNumber}`);
+
+                if (!oldPage || !newPage) return;
+
+                // Imposta la direzione della transizione
+                if (direction === 'next') {
+                    oldPage.classList.add('exit-left');
+                    newPage.classList.add('enter-right');
+                } else { // 'prev'
+                    oldPage.classList.add('exit-right');
+                    newPage.classList.add('enter-left');
+                }
+                
+                // Attiva la nuova pagina
+                newPage.classList.add('active');
+                
+                // Rimuovi le classi di transizione dopo l'animazione
+                setTimeout(() => {
+                    oldPage.classList.remove('active', 'exit-left', 'exit-right');
+                    newPage.classList.remove('enter-left', 'enter-right');
+                }, 400); // Deve corrispondere alla durata della transizione CSS
+
+                currentPage = pageNumber;
+                
+                // --- MODIFICA RICHIESTA ---
+                // Avvia automaticamente l'audio per la NUOVA pagina
+                // (Con un piccolo ritardo per evitare sovrapposizioni con l'animazione)
+                setTimeout(() => {
+                    toggleAudio(currentPage);
+                }, 100); // 100ms di ritardo
+            }
+
+            // --- Gestione Swipe/Drag ---
+
+            function handleDragStart(clientX) {
+                isDragging = true;
+                startX = clientX;
+                // Aggiungi una classe al body per prevenire la selezione del testo durante il drag
+                document.body.classList.add('dragging');
+            }
+
+            function handleDragMove(clientX) {
+                if (!isDragging) return;
+                endX = clientX;
+            }
+
+            function handleDragEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                document.body.classList.remove('dragging');
+
+                const deltaX = startX - endX;
+
+                // Controlla se lo swipe ha superato la soglia
+                if (Math.abs(deltaX) > swipeThreshold) {
+                    if (deltaX > 0) {
+                        // Swipe verso sinistra (Avanti)
+                        showPage(currentPage + 1, 'next');
+                    } else {
+                        // Swipe verso destra (Indietro)
+                        showPage(currentPage - 1, 'prev');
+                    }
+                }
+                
+                // Resetta le coordinate
+                startX = 0;
+                endX = 0;
+            }
+
+            // Eventi Mouse (PC)
+            book.addEventListener('mousedown', (e) => {
+                // Non iniziare il drag se si clicca sul pulsante audio
+                if (e.target.closest('.audio-icon')) return;
+                e.preventDefault(); // Previene il drag di default (es. immagini)
+                handleDragStart(e.clientX);
+            });
+            book.addEventListener('mousemove', (e) => {
+                handleDragMove(e.clientX);
+            });
+            // Gestisce il rilascio anche se avviene fuori dal libro
+            window.addEventListener('mouseup', () => {
+                handleDragEnd();
+            });
+
+            // Eventi Touch (Mobile)
+            book.addEventListener('touchstart', (e) => {
+                // Non iniziare il drag se si tocca il pulsante audio
+                if (e.target.closest('.audio-icon')) return;
+                handleDragStart(e.touches[0].clientX);
+            }, { passive: true }); // passive: true per migliore performance
+            
+            book.addEventListener('touchmove', (e) => {
+                handleDragMove(e.touches[0].clientX);
+            }, { passive: true });
+            
+            book.addEventListener('touchend', () => {
+                handleDragEnd();
+            });
+            
+            // Aggiungi stile per prevenire selezione testo durante drag
+            const styleSheet = document.createElement("style");
+            styleSheet.type = "text/css";
+            styleSheet.innerText = ".dragging, .dragging * { user-select: none; }";
+            document.head.appendChild(styleSheet);
+            
+            // NOTA: Ho anche cambiato preload="none" a preload="auto" per il primo audio
+            // e aggiunto un .catch() alla funzione player.play() per gestire
+            // le policy di autoplay dei browser.
+        });
+    </script>
+</body>
+</html>
